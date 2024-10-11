@@ -303,12 +303,48 @@ test('purchase with login', async ({ page }) => {
 
   });
 
-  test('docs', async ({ page }) => {
+  test('docs page loads and displays docs data', async ({ page }) => {
+    // Mock the service call for docs
+    await page.route('*/**/api/docs*', async (route) => {
+      const docsResponse = {
+        endpoints: [
+          {
+            requiresAuth: true,
+            method: 'GET',
+            path: '/api/orders',
+            description: 'Fetches all orders',
+            example: 'GET /api/orders',
+            response: { orders: [] },
+          },
+          {
+            requiresAuth: false,
+            method: 'POST',
+            path: '/api/orders',
+            description: 'Create a new order',
+            example: 'POST /api/orders',
+            response: { id: 123 },
+          },
+        ],
+      };
+  
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(docsResponse),
+      });
+    });
+  
     // Go to the docs page
     await page.goto('/docs');
   
-    // Explicitly wait for the "JWT Pizza API" text to appear, in case of slower loading times
-    const textLocator = page.getByText('JWT Pizza API');
-    await expect(textLocator).toBeVisible({ timeout: 5000 }); // Waits up to 5 seconds for visibility
-
+    // Wait for the docs to be visible (to ensure the API response is rendered)
+    await expect(page.getByText('[GET] /api/orders')).toBeVisible();
+    await expect(page.getByText('[POST] /api/orders')).toBeVisible();
+  
+    // Verify the presence of the lock icon for the authenticated endpoint
+    await expect(page.getByText('🔐 [GET] /api/orders')).toBeVisible();
+  
+    // Verify the non-authenticated endpoint is displayed correctly
+    await expect(page.getByText('[POST] /api/orders')).toBeVisible();
   });
+  
