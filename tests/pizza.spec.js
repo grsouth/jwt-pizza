@@ -99,7 +99,7 @@ test('purchase with login', async ({ page }) => {
     await expect(page.getByText('0.008')).toBeVisible();
   });
 
-  test('franchise/about/history/where tour', async ({ page }) => {
+  test('tour', async ({ page }) => {
     await page.goto('/');
   
     expect(await page.title()).toBe('JWT Pizza');
@@ -114,7 +114,12 @@ test('purchase with login', async ({ page }) => {
     await page.goto('/fish');
     await expect(page.getByRole('main')).toContainText('It looks like we have dropped a pizza on the floor. Please try another page.');
 
+    await page.goto('/admin-dashboard/create-franchise');
+    await expect(page.getByRole('heading')).toContainText('Create franchise');
 
+
+    await page.goto('/admin-dashboard/close-franchise');
+    await page.goto('/admin-dashboard/close-store');
   });
 
   test('register', async ({ page }) => {
@@ -298,7 +303,7 @@ test('purchase with login', async ({ page }) => {
 
   });
 
-  test('test', async ({ page }) => {
-    await page.goto('http://localhost:5173/docs');
+  test('docs', async ({ page }) => {
+    await page.goto('/docs');
     await expect(page.getByText('JWT Pizza API')).toBeVisible();
   });
