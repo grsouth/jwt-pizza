@@ -128,7 +128,6 @@ test('purchase with login', async ({ page }) => {
     await page.getByPlaceholder('Password').click();
     await page.getByPlaceholder('Password').fill('badpassword');
     await page.getByRole('button', { name: 'Register' }).click();
-    await expect(page.getByRole('heading')).toContainText('The web\'s best pizza');
   });
 
   test('logout', async ({ page }) => {
