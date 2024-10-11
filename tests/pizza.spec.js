@@ -304,6 +304,11 @@ test('purchase with login', async ({ page }) => {
   });
 
   test('docs', async ({ page }) => {
+    // Go to the docs page
     await page.goto('/docs');
-    await expect(page.getByText('JWT Pizza API')).toBeVisible();
+  
+    // Explicitly wait for the "JWT Pizza API" text to appear, in case of slower loading times
+    const textLocator = page.getByText('JWT Pizza API');
+    await expect(textLocator).toBeVisible({ timeout: 5000 }); // Waits up to 5 seconds for visibility
+
   });
