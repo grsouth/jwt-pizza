@@ -114,10 +114,10 @@ test('purchase with login', async ({ page }) => {
     await page.goto('/fish');
     await expect(page.getByRole('main')).toContainText('It looks like we have dropped a pizza on the floor. Please try another page.');
 
+    await page.goto('/admin-dashboard');
+    
     await page.goto('/admin-dashboard/create-franchise');
     await expect(page.getByRole('heading')).toContainText('Create franchise');
-
-
     await page.goto('/admin-dashboard/close-franchise');
     await page.goto('/admin-dashboard/close-store');
   });
