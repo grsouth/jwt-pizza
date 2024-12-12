@@ -5,6 +5,7 @@ on:
     branches:
       - main
   workflow_dispatch:
+
 jobs:
   build:
     name: Build
@@ -42,18 +43,7 @@ jobs:
         run: |
           npx playwright install --with-deps chromium
           npm run test:coverage
-          
-      - name: Update coverage
-        run: |
-          coverage_pct=$(grep -o '"pct":[0-9.]*' coverage/coverage-summary.json | head -n 1 | cut -d ':' -f 2)
-          color=$(echo "$coverage_pct < 80" | bc -l | awk '{if ($1) print "yellow"; else print "green"}')
-          curl https://img.shields.io/badge/Coverage-$coverage_pct%25-$color -o coverageBadge.svg
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add .
-          git commit -m "generated"
-          git pull
-          git push
+
   deploy:
     needs: build
     permissions:
@@ -79,9 +69,9 @@ jobs:
       - name: Push to AWS S3
         run: |
           version=${{ needs.build.outputs.version }}
-          echo Deploying ${{ needs.build.outputs.version }}
+          echo Deploying $version
           aws s3 cp dist s3://${{ secrets.APP_BUCKET }}/$version --recursive
-      
+
       - name: Update the cloudfront distribution
         run: |
           # Get the current distribution and update it to use the new version
@@ -94,6 +84,7 @@ jobs:
           # Wait for the distribution to deploy and then invalidate the cache
           while [ "$(aws cloudfront get-distribution --id ${{ secrets.DISTRIBUTION_ID }} --query 'Distribution.Status' --output text)" != "Deployed" ]; do echo "Distribution is still updating..."; sleep 5; done
           aws cloudfront create-invalidation --distribution-id ${{ secrets.DISTRIBUTION_ID }} --paths "/*"
+
   release:
     needs:
       - build
@@ -103,14 +94,12 @@ jobs:
       - name: Create Release
         uses: ncipollo/release-action@v1
         env:
-          version: ${{needs.build.outputs.version}}
+          version: ${{ needs.build.outputs.version }}
         with:
           tag: version-${{ env.version }}
           name: Version ${{ env.version }}
           body: |
             ## 🚀 Changes
-  
             ${{ github.event.head_commit.message }}
-  
             **commit**: ${{ github.sha }}
 
