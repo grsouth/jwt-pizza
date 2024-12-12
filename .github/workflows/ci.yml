@@ -60,8 +60,8 @@ jobs:
       id-token: write
     runs-on: ubuntu-latest
     env:
-      name: production
-      url: https://pizza.byucsstudent.click
+      name: staging
+      url: https://stage-pizza.byucsstudent.click
     steps:
       - name: Create OIDC token to AWS
         uses: aws-actions/configure-aws-credentials@v4
@@ -100,3 +100,24 @@ jobs:
             ${{ github.event.head_commit.message }}
   
             **commit**: ${{ github.sha }}
+
+            {
+        "Version": "2008-10-17",
+        "Id": "PolicyForCloudFrontPrivateContent",
+        "Statement": [
+            {
+                "Sid": "AllowCloudFrontServicePrincipal",
+                "Effect": "Allow",
+                "Principal": {
+                    "Service": "cloudfront.amazonaws.com"
+                },
+                "Action": "s3:GetObject",
+                "Resource": "arn:aws:s3:::pizza.garrettsoutham.site/*",
+                "Condition": {
+                    "StringEquals": {
+                      "AWS:SourceArn": "arn:aws:cloudfront::598024351051:distribution/E2ZZ4APVY8OJXV"
+                    }
+                }
+            }
+        ]
+      }
