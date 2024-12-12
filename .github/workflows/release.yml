@@ -34,7 +34,7 @@ jobs:
           aws cloudfront get-distribution-config --id ${{ secrets.DISTRIBUTION_ID }} > original.json
           etag=$(jq -r '.ETag' original.json)
           jq '.DistributionConfig' original.json > request.json
-          jq --arg version "/$version" '.Origins.Items[0].OriginPath = $version' request.json > finalRequest.json
+          jq --arg version "/${{ github.event.inputs.version }}" '.Origins.Items[0].OriginPath = $version' request.json > finalRequest.json
           aws cloudfront update-distribution --id ${{ secrets.DISTRIBUTION_ID }} --if-match $etag --distribution-config file://finalRequest.json
 
           # Wait for the distribution to deploy and then invalidate the cache
